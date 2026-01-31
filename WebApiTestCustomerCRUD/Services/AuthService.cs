@@ -7,10 +7,11 @@ using WebApiTestCustomerCRUD.Data;
 using WebApiTestCustomerCRUD.DTOs.Requests;
 using WebApiTestCustomerCRUD.DTOs.Responses;
 using WebApiTestCustomerCRUD.Models;
+using WebApiTestCustomerCRUD.Services.Interfaces;
 
 namespace WebApiTestCustomerCRUD.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly ApplicationDbContext context;
         private readonly ILogger<AuthService> logger;
@@ -99,11 +100,13 @@ namespace WebApiTestCustomerCRUD.Services
                     if (user == null)
                     {
                         response.Success = false;
+                        response.UserId =int.Parse (userId);
                         response.Message = $"User with id {userId} not found";
                         logger.LogInformation($"User with id {userId} not found");
                     }
                     else
                     {
+                        response.UserId = user.UserId;
                         response.AccessToken = GenerateAccessToken(user);
                         response.RefreshToken = GenerateRefreshToken(user);
                         response.Success = true;
@@ -165,6 +168,7 @@ namespace WebApiTestCustomerCRUD.Services
                 {
                     response.Success=true;
                     response.Message = "Login successfull";
+                    response.UserId = loginUser.UserId;
                     response.AccessToken = GenerateAccessToken(loginUser);
                     response.RefreshToken = GenerateRefreshToken(loginUser);
                     logger.LogInformation($"Login user: {user.UserName} failed");

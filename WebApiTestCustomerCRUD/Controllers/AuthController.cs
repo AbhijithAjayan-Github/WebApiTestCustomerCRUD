@@ -2,16 +2,17 @@
     using WebApiTestCustomerCRUD.DTOs.Requests;
     using WebApiTestCustomerCRUD.DTOs.Responses;
     using WebApiTestCustomerCRUD.Services;
+using WebApiTestCustomerCRUD.Services.Interfaces;
 
-    namespace WebApiTestCustomerCRUD.Controllers
+namespace WebApiTestCustomerCRUD.Controllers
     {
         [Route("api/auth")]
         [ApiController]
         public class AuthController : ControllerBase
         {
             private readonly ILogger<AuthController> logger;
-            private readonly AuthService authService;
-            public AuthController(ILogger<AuthController>logger,AuthService authService)
+            private readonly IAuthService authService;
+            public AuthController(ILogger<AuthController>logger,IAuthService authService)
             {
                 this.authService = authService;
                 this.logger = logger;

@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using WebApiTestCustomerCRUD.Data;
 using WebApiTestCustomerCRUD.Services;
+using WebApiTestCustomerCRUD.Services.Interfaces;
 
 namespace WebApiTestCustomerCRUD
 {
@@ -30,7 +31,7 @@ namespace WebApiTestCustomerCRUD
             })    
             );
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQL")));
-            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<IAuthService,AuthService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
