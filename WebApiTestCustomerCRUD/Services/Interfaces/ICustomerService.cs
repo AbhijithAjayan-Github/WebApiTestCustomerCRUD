@@ -8,5 +8,7 @@ namespace WebApiTestCustomerCRUD.Services.Interfaces
     {
         Task<CustomerAddResponse> CustomerAdd(CustomerAdd customer);
         Task<GetCustomerByIdResponse> GetCustomerById(int customerId);
+        Task<CustomerAddResponse> UpdateCustomerById(CustomerUpdate customerDetails);
+        Task<CustomerAddResponse> DeleteCustomerById(int customerId);
     }
 }

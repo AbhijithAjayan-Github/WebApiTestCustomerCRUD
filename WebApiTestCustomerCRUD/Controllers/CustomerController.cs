@@ -46,7 +46,7 @@ namespace WebApiTestCustomerCRUD.Controllers
             return Ok(response);
         }
 
-        [HttpGet("get_customer_by_id/{customerId}")]
+        [HttpGet("get_customer/{customerId}")]
         [Authorize]
         public async Task<IActionResult>GetCustomerById(int customerId)
         {
@@ -61,6 +61,49 @@ namespace WebApiTestCustomerCRUD.Controllers
                     return BadRequest(response);
                 }
                 response = await customerService.GetCustomerById(customerId);
+            }
+            catch(Exception ex)
+            {
+                logger.LogInformation($"Error : {ex.Message}");
+            }
+            return Ok(response);
+        }
+        [HttpPut]
+        [Route("update_customer")]
+        [Authorize]
+        public async Task<IActionResult>UpdateCustomerById(CustomerUpdate customerDTO)
+        {
+            CustomerAddResponse response = new CustomerAddResponse();
+            try
+            {
+                if(customerDTO.CustomerId == 0 || customerDTO.UpdatedBy == 0)
+                {
+                    response.Sucess = false;
+                    response.Message = $"Invalid Customer Id / User Id -> Customer Id : {customerDTO.CustomerId}, User Id : {customerDTO.UpdatedBy}";
+                    logger.LogInformation($"Invalid Customer Id / User Id -> Customer Id : {customerDTO.CustomerId}, User Id : {customerDTO.UpdatedBy}");
+                    return BadRequest(response);
+                }
+                response = await customerService.UpdateCustomerById(customerDTO);
+            }
+            catch(Exception ex)
+            {
+                logger.LogInformation($"{ex.Message}", ex);
+            }
+            return Ok(response);
+        }
+        [HttpDelete("delete_customer/{customerId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteCustomerById(int customerId)
+        {
+            CustomerAddResponse response = new CustomerAddResponse();
+            try
+            {
+               if(customerId == 0)
+               {
+                    response.Sucess = false;
+                    response.Message = $"Invalid customer id : {customerId}";
+               }
+               response = await customerService.DeleteCustomerById(customerId);
             }
             catch(Exception ex)
             {

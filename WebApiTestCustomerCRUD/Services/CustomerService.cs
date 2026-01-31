@@ -74,5 +74,63 @@ namespace WebApiTestCustomerCRUD.Services
             }
             return response;
         }
+        
+        public async Task<CustomerAddResponse> UpdateCustomerById(CustomerUpdate customerDetails)
+        {
+            CustomerAddResponse response = new CustomerAddResponse();
+            try
+            {
+                var customer = await context.Customers.FirstOrDefaultAsync(cus => cus.CustomerId == customerDetails.CustomerId);
+                if (customer == null)
+                {
+                    response.Sucess = false;
+                    response.Message = $"Failed to fetch customer with id {customerDetails.CustomerId}";
+                    logger.LogInformation($"Failed to fetch customer with id {customerDetails.CustomerId}");
+                    return response;
+                }
+                customer.CustomerName = customerDetails.CustomerName;
+                customer.CustomerAddress = customerDetails.CustomerAddress;
+                customer.CustomerEmail = customerDetails.CustomerEmail;
+                customer.CustomerPhone = customerDetails.CustomerPhone;
+                customer.UpdatedBy = customerDetails.UpdatedBy;
+                customer.UpdatedAt = DateTime.UtcNow;
+                await context.SaveChangesAsync();
+                response.Sucess = true;
+                response.Message = $"Successfully updated customer info of customer {customer.CustomerName}, customer Id : {customer.CustomerId}";
+            }
+            catch(Exception ex)
+            {
+                response.Sucess= false;
+                response.Message = $"Error : {ex.Message}";
+                logger.LogError($"Error : {ex.Message}");
+            }
+            return response;
+        }
+
+        public async Task<CustomerAddResponse> DeleteCustomerById(int customerId)
+        {
+            CustomerAddResponse response = new CustomerAddResponse();
+            try
+            {
+                var customer = context.Customers.FirstOrDefault(x=>x.CustomerId == customerId);
+                if(customer == null)
+                {
+                    response.Sucess = false;
+                    response.Message = $"Customer with id {customerId} not found";
+                    logger.LogInformation($"Customer with id {customerId} not found");
+                    return response;
+                }
+                context.Customers.Remove(customer);
+                await context.SaveChangesAsync();
+                response.Sucess = true;
+                response.Message = $"Successfully deleted customer :{customerId}, customer name : {customer.CustomerName}";
+            }
+            catch(Exception ex)
+            {
+                response.Sucess = false;
+                response.Message = $"Error : {ex.Message}";
+            }
+            return response;
+        }
     }
 }
