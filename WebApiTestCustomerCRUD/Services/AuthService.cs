@@ -171,7 +171,7 @@ namespace WebApiTestCustomerCRUD.Services
                     response.UserId = loginUser.UserId;
                     response.AccessToken = GenerateAccessToken(loginUser);
                     response.RefreshToken = GenerateRefreshToken(loginUser);
-                    logger.LogInformation($"Login user: {user.UserName} failed");
+                    logger.LogInformation($"Login user: {user.UserName} successfull");
                 }
             }
             catch (Exception ex)

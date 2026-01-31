@@ -21,17 +21,28 @@ namespace WebApiTestCustomerCRUD
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen( c=>
-            c.AddSecurityDefinition("JWT", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",  
-                In = ParameterLocation.Header, 
-            })    
-            );
+            builder.Services.AddSwaggerGen(c => { c.AddSecurityDefinition("Bearer", 
+                new OpenApiSecurityScheme { 
+                    Name = "Authorization", 
+                    Type = SecuritySchemeType.Http, 
+                    Scheme = "bearer", 
+                    BearerFormat = "JWT", 
+                    In = ParameterLocation.Header, 
+                    Description = "Enter 'Bearer {token}'" });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                    { new OpenApiSecurityScheme { 
+                        Reference = new OpenApiReference {
+                            Type = ReferenceType.SecurityScheme, 
+                            Id = "Bearer" 
+                        } 
+                    }, new string[] {
+                        } 
+                    } 
+                }); 
+            });
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQL")));
             builder.Services.AddScoped<IAuthService,AuthService>();
+            builder.Services.AddScoped<ICustomerService,CustomerService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -43,8 +54,8 @@ namespace WebApiTestCustomerCRUD
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidateAudience = true,
                     ValidateLifetime = true,
+                    ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings["Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
