@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using WebApiTestCustomerCRUD.Data;
 using WebApiTestCustomerCRUD.DTOs.Requests;
 using WebApiTestCustomerCRUD.DTOs.Responses;
@@ -40,6 +41,32 @@ namespace WebApiTestCustomerCRUD.Services
             {
                 response.Sucess = false;
                 response.Message = $"Error : {ex.Message}";
+            }
+            return response;
+        }
+        public async Task<GetCustomerByIdResponse> GetCustomerById(int customerId)
+        {
+            GetCustomerByIdResponse response = new GetCustomerByIdResponse();
+            try
+            {
+                var customer = await context.Customers.FirstOrDefaultAsync(cus => cus.CustomerId == customerId);
+                logger.LogInformation($"Customer fetched for id {customerId}: {JsonSerializer.Serialize(customer)}");
+                if (customer == null)
+                {
+                    response.Success = false;
+                    response.Message = $"Customer with id {customerId} not found";
+                    response.customer = new Customer();
+                    return response;
+                }
+                response.Success = true;
+                response.Message = $"Successfully fetched customer for {customerId}";
+                response.customer = customer;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error : {ex.Message}";
+                response.customer = new Customer();
             }
             return response;
         }
