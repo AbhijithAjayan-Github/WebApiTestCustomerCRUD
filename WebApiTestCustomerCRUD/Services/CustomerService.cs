@@ -132,5 +132,81 @@ namespace WebApiTestCustomerCRUD.Services
             }
             return response;
         }
+
+        public async Task<GetAllCustomersResponse>GetAllCustomers()
+        {
+            GetAllCustomersResponse response = new GetAllCustomersResponse();
+            try
+            {
+                var customers = await context.Customers.ToListAsync();
+                if(customers == null)
+                {
+                    response.Success = false;
+                    response.message = $"No customers are there to fetch from the db ";
+                    response.TotalCustomerCount = customers.Count;
+                    response.customers = new List<Customer>();
+                }
+                response.Success = true;
+                response.message = $"Successfully fetched customers";
+                foreach(var customer in customers)
+                {
+                    customer.CreatedAt = timeZoneHelper.ConvertToIST(customer.CreatedAt);
+                    customer.UpdatedAt = timeZoneHelper.ConvertToIST(customer.UpdatedAt);
+                }
+                response.TotalCustomerCount = customers.Count;
+                response.customers = customers;
+            }
+            catch(Exception ex)
+            {
+                response.Success= false;
+                response.message = $"Error : {ex.Message}";
+                response.customers= new List<Customer>();
+                logger.LogError($"Error : {ex.Message}");
+            }
+            return response;
+        }
+        public async Task<PaginatedCustomersResponse> GetPaginatedCustomers(GetPaginatedCustomers getCustomers)
+        {
+            PaginatedCustomersResponse response = new PaginatedCustomersResponse();
+            try
+            {
+                int skipCount = (getCustomers.CurrentPage - 1) * getCustomers.PageSize;
+                var customersCount = await context.Customers.CountAsync();
+                if(customersCount == 0)
+                {
+                    response.Success = false;
+                    response.Message = $"No customers found";
+                    response.PageSize = getCustomers.PageSize;
+                    response.CurrentPage = getCustomers.CurrentPage;
+                    response.TotalCustomerCount = customersCount;
+                    response.Customers = new List<Customer>();
+                    logger.LogInformation($"{JsonSerializer.Serialize(response)}");
+                    return response;
+                }
+                int totalPages = (int)Math.Ceiling((double)customersCount / getCustomers.PageSize);
+                var customers = await context.Customers.Skip(skipCount).Take(getCustomers.PageSize).ToListAsync();
+                foreach(var customer in customers)
+                {
+                    customer.CreatedAt = timeZoneHelper.ConvertToIST(customer.CreatedAt);
+                    customer.UpdatedAt = timeZoneHelper.ConvertToIST(customer.UpdatedAt);
+                }
+                response.Success = true;
+                response.Message = "Successfully fetched customers";
+                response.PageSize = getCustomers.PageSize;
+                response.CurrentPage = getCustomers.CurrentPage;
+                response.TotalPages = totalPages;
+                response.TotalCustomerCount = customersCount;
+                response.Customers = customers;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error : {ex.Message}";
+                response.PageSize = getCustomers.PageSize;
+                response.CurrentPage = getCustomers.CurrentPage;
+                response.Customers = new List<Customer>();
+            }
+            return response;
+        }
     }
 }

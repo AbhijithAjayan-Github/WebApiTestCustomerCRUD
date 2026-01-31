@@ -10,5 +10,7 @@ namespace WebApiTestCustomerCRUD.Services.Interfaces
         Task<GetCustomerByIdResponse> GetCustomerById(int customerId);
         Task<CustomerAddResponse> UpdateCustomerById(CustomerUpdate customerDetails);
         Task<CustomerAddResponse> DeleteCustomerById(int customerId);
+        Task<GetAllCustomersResponse> GetAllCustomers();
+        Task<PaginatedCustomersResponse> GetPaginatedCustomers(GetPaginatedCustomers getCustomers);
     }
 }

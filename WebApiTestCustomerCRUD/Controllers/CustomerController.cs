@@ -91,6 +91,7 @@ namespace WebApiTestCustomerCRUD.Controllers
             }
             return Ok(response);
         }
+
         [HttpDelete("delete_customer/{customerId}")]
         [Authorize]
         public async Task<IActionResult> DeleteCustomerById(int customerId)
@@ -104,6 +105,40 @@ namespace WebApiTestCustomerCRUD.Controllers
                     response.Message = $"Invalid customer id : {customerId}";
                }
                response = await customerService.DeleteCustomerById(customerId);
+            }
+            catch(Exception ex)
+            {
+                logger.LogInformation($"Error : {ex.Message}");
+            }
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("get_all_customers")]
+        public async Task<IActionResult>GetAllCustomers()
+        {
+            GetAllCustomersResponse response = new GetAllCustomersResponse();
+            try
+            {
+                response = await customerService.GetAllCustomers();
+            }
+            catch(Exception ex)
+            {
+                logger.LogError($"Error : {ex.Message}");
+            }
+            return Ok(response);    
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("get_customers")]
+        public async Task<IActionResult>GetPaginatedCustomers(GetPaginatedCustomers getData)
+        {
+            PaginatedCustomersResponse response = new PaginatedCustomersResponse();
+            try
+            {
+                response = await customerService.GetPaginatedCustomers(getData); 
             }
             catch(Exception ex)
             {
