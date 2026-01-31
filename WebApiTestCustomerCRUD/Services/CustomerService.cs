@@ -4,6 +4,7 @@ using WebApiTestCustomerCRUD.Data;
 using WebApiTestCustomerCRUD.DTOs.Requests;
 using WebApiTestCustomerCRUD.DTOs.Responses;
 using WebApiTestCustomerCRUD.Models;
+using WebApiTestCustomerCRUD.Services.Helpers;
 using WebApiTestCustomerCRUD.Services.Interfaces;
 
 namespace WebApiTestCustomerCRUD.Services
@@ -11,11 +12,13 @@ namespace WebApiTestCustomerCRUD.Services
     public class CustomerService:ICustomerService
     {
         private readonly ApplicationDbContext context;
+        private readonly TimeZoneHelperService timeZoneHelper;
         private readonly ILogger<CustomerService> logger;
-        public CustomerService(ApplicationDbContext context,ILogger<CustomerService> logger)
+        public CustomerService(ApplicationDbContext context,ILogger<CustomerService> logger,TimeZoneHelperService timeZoneHelper)
         {
             this.context = context;
             this.logger = logger;
+            this.timeZoneHelper = timeZoneHelper;
         }
         public async Task<CustomerAddResponse>CustomerAdd(CustomerAdd customerDTO)
         {
@@ -58,6 +61,7 @@ namespace WebApiTestCustomerCRUD.Services
                     response.customer = new Customer();
                     return response;
                 }
+                customer.CreatedAt = timeZoneHelper.ConvertToIST(customer.CreatedAt); // we are converting time to corresponding timezone we set in appsettings.json to the client
                 response.Success = true;
                 response.Message = $"Successfully fetched customer for {customerId}";
                 response.customer = customer;
