@@ -16,7 +16,7 @@ namespace WebApiTestCustomerCRUD.Controllers
     {
         private readonly ICustomerService customerService;
         private readonly ILogger<CustomerController> logger;
-        public CustomerController(ILogger<CustomerController> logger,ICustomerService customerService)
+        public CustomerController(ILogger<CustomerController> logger, ICustomerService customerService)
         {
             this.logger = logger;
             this.customerService = customerService;
@@ -28,67 +28,49 @@ namespace WebApiTestCustomerCRUD.Controllers
         public async Task<IActionResult> CustomerAdd(CustomerAdd customerDto)
         {
             CustomerAddResponse response = new CustomerAddResponse();
-            try
+
+            if (customerDto.CreatedBy == 0)
             {
-                if(customerDto.CreatedBy == 0)
-                {
-                    response.Sucess = false;
-                    response.Message = $"Invalid UserId 0";
-                    logger.LogInformation($"{JsonSerializer.Serialize(response)}");
-                    return BadRequest(response);
-                }
-                response = await customerService.CustomerAdd(customerDto);
+                response.Sucess = false;
+                response.Message = $"Invalid UserId 0";
+                logger.LogInformation($"{JsonSerializer.Serialize(response)}");
+                return BadRequest(response);
             }
-            catch (Exception ex)
-            {
-                logger.LogInformation($"Error : {ex.Message}");
-            }
+            response = await customerService.CustomerAdd(customerDto);
+
             return Ok(response);
         }
 
         [HttpGet("get_customer/{customerId}")]
         [Authorize]
-        public async Task<IActionResult>GetCustomerById(int customerId)
+        public async Task<IActionResult> GetCustomerById(int customerId)
         {
-            GetCustomerByIdResponse response = new GetCustomerByIdResponse();   
-            try
+            GetCustomerByIdResponse response = new GetCustomerByIdResponse();
+            if (customerId == 0)
             {
-                if(customerId == 0)
-                {
-                    response.Success = false;
-                    response.Message = $"Invalid customer id 0";
-                    response.customer = new Customer();
-                    return BadRequest(response);
-                }
-                response = await customerService.GetCustomerById(customerId);
+                response.Success = false;
+                response.Message = $"Invalid customer id 0";
+                response.customer = new Customer();
+                return BadRequest(response);
             }
-            catch(Exception ex)
-            {
-                logger.LogInformation($"Error : {ex.Message}");
-            }
+            response = await customerService.GetCustomerById(customerId);
             return Ok(response);
         }
         [HttpPut]
         [Route("update_customer")]
         [Authorize]
-        public async Task<IActionResult>UpdateCustomerById(CustomerUpdate customerDTO)
+        public async Task<IActionResult> UpdateCustomerById(CustomerUpdate customerDTO)
         {
             CustomerAddResponse response = new CustomerAddResponse();
-            try
+
+            if (customerDTO.CustomerId == 0 || customerDTO.UpdatedBy == 0)
             {
-                if(customerDTO.CustomerId == 0 || customerDTO.UpdatedBy == 0)
-                {
-                    response.Sucess = false;
-                    response.Message = $"Invalid Customer Id / User Id -> Customer Id : {customerDTO.CustomerId}, User Id : {customerDTO.UpdatedBy}";
-                    logger.LogInformation($"Invalid Customer Id / User Id -> Customer Id : {customerDTO.CustomerId}, User Id : {customerDTO.UpdatedBy}");
-                    return BadRequest(response);
-                }
-                response = await customerService.UpdateCustomerById(customerDTO);
+                response.Sucess = false;
+                response.Message = $"Invalid Customer Id / User Id -> Customer Id : {customerDTO.CustomerId}, User Id : {customerDTO.UpdatedBy}";
+                logger.LogInformation($"Invalid Customer Id / User Id -> Customer Id : {customerDTO.CustomerId}, User Id : {customerDTO.UpdatedBy}");
+                return BadRequest(response);
             }
-            catch(Exception ex)
-            {
-                logger.LogInformation($"{ex.Message}", ex);
-            }
+            response = await customerService.UpdateCustomerById(customerDTO);
             return Ok(response);
         }
 
@@ -97,53 +79,33 @@ namespace WebApiTestCustomerCRUD.Controllers
         public async Task<IActionResult> DeleteCustomerById(int customerId)
         {
             CustomerAddResponse response = new CustomerAddResponse();
-            try
+
+            if (customerId == 0)
             {
-               if(customerId == 0)
-               {
-                    response.Sucess = false;
-                    response.Message = $"Invalid customer id : {customerId}";
-               }
-               response = await customerService.DeleteCustomerById(customerId);
+                response.Sucess = false;
+                response.Message = $"Invalid customer id : {customerId}";
             }
-            catch(Exception ex)
-            {
-                logger.LogInformation($"Error : {ex.Message}");
-            }
+            response = await customerService.DeleteCustomerById(customerId);
             return Ok(response);
         }
 
         [HttpGet]
         [Authorize]
         [Route("get_all_customers")]
-        public async Task<IActionResult>GetAllCustomers()
+        public async Task<IActionResult> GetAllCustomers()
         {
             GetAllCustomersResponse response = new GetAllCustomersResponse();
-            try
-            {
-                response = await customerService.GetAllCustomers();
-            }
-            catch(Exception ex)
-            {
-                logger.LogError($"Error : {ex.Message}");
-            }
-            return Ok(response);    
+            response = await customerService.GetAllCustomers();
+            return Ok(response);
         }
 
         [HttpPost]
         [Authorize]
         [Route("get_customers")]
-        public async Task<IActionResult>GetPaginatedCustomers(GetPaginatedCustomers getData)
+        public async Task<IActionResult> GetPaginatedCustomers(GetPaginatedCustomers getData)
         {
             PaginatedCustomersResponse response = new PaginatedCustomersResponse();
-            try
-            {
-                response = await customerService.GetPaginatedCustomers(getData); 
-            }
-            catch(Exception ex)
-            {
-                logger.LogInformation($"Error : {ex.Message}");
-            }
+            response = await customerService.GetPaginatedCustomers(getData);
             return Ok(response);
         }
     }

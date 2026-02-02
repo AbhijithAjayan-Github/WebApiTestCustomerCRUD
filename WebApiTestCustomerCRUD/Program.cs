@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using WebApiTestCustomerCRUD.Data;
+using WebApiTestCustomerCRUD.Middlewares;
 using WebApiTestCustomerCRUD.Services;
 using WebApiTestCustomerCRUD.Services.Helpers;
 using WebApiTestCustomerCRUD.Services.Interfaces;
@@ -42,6 +43,7 @@ namespace WebApiTestCustomerCRUD
                 }); 
             });
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQL")));
+            builder.Services.AddExceptionHandler<AppExceptionHandler>();
             builder.Services.AddScoped<IAuthService,AuthService>();
             builder.Services.AddScoped<ICustomerService,CustomerService>();
             builder.Services.AddSingleton<TimeZoneHelperService>();
@@ -71,7 +73,7 @@ namespace WebApiTestCustomerCRUD
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseExceptionHandler( _ => { } );
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
